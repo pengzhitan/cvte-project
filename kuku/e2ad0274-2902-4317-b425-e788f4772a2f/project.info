@@ -1,0 +1,4 @@
+projectName: corporate_homepage_IA92QX
+description: 现代响应式企业官网首页，含导航、Banner、服务、产品特点、底部联系等区块，适配PC与移动端。
+framework: React 18 + TypeScript 5 + Vite + Ant Design 5
+author: AI
