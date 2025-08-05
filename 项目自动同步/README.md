@@ -13,13 +13,27 @@
 
 ## 使用方法
 
-### 启动工具
+### 🌟 推荐方式 - HTML界面
+双击运行 `启动工具.bat` 文件，会在浏览器中打开现代化的同步工具界面。
 
-**双击运行 `启动同步工具.vbs` 文件**，选择运行模式：
+### 📋 功能说明
+- **持续监控模式**：实时监控文件变化并自动同步
+- **单次同步**：立即执行一次完整同步
+- **交互模式**：手动控制同步过程
+- **配置设置**：查看和修改同步配置
 
-1. **持续监控模式**：程序会持续监控项目文件变化，自动同步
-2. **单次同步**：执行一次同步操作后退出
-3. **交互模式**：提供完整的交互菜单
+### 🔧 命令行方式
+如果需要直接使用命令行：
+```bash
+# 单次同步
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode once
+
+# 持续监控
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode continuous
+
+# 交互模式
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode interactive
+```
 
 ### 命令行方式
 
