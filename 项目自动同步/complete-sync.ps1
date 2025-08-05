@@ -6,7 +6,7 @@ param(
 )
 
 $ProjectPath = "D:\my-project\CVTE"
-$LogFile = "$ProjectPath\项目自动同步\sync.log"
+$LogFile = "$ProjectPath\auto-sync\sync.log"
 
 function Write-Log {
     param([string]$Message, [string]$Level = "INFO")
