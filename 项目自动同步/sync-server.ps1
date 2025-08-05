@@ -1,3 +1,81 @@
+# HTTP Server for Project Sync Tool
+# Provides web API for one-click sync functionality
+
+param(
+    [int]$Port = 8080
+)
+
+# Function to write log messages
+function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Write-Host "[$timestamp] [$Level] $Message"
+}
+
+# Function to start sync process
+function Start-SyncProcess {
+    param(
+        [string]$Mode = "once"
+    )
+    try {
+        $scriptPath = Join-Path $PSScriptRoot "complete-sync.ps1"
+        if (Test-Path $scriptPath) {
+            Write-Log "Starting sync process with mode: $Mode"
+            $arguments = "-ExecutionPolicy Bypass -File `"$scriptPath`" -Mode $Mode"
+            $process = Start-Process -FilePath "powershell.exe" -ArgumentList $arguments -PassThru -WindowStyle Hidden
+            return @{ success = $true; message = "Sync process started successfully with mode: $Mode"; processId = $process.Id }
+        } else {
+            return @{ success = $false; message = "Sync script not found: $scriptPath" }
+        }
+    } catch {
+        Write-Log "Error starting sync process: $($_.Exception.Message)" "ERROR"
+        return @{ success = $false; message = "Error: $($_.Exception.Message)" }
+    }
+}
+
+# Function to get config content
+function Get-ConfigContent {
+    try {
+        $configPath = Join-Path $PSScriptRoot "config.json"
+        if (Test-Path $configPath) {
+            $content = Get-Content $configPath -Raw -Encoding UTF8
+            return @{ success = $true; content = $content }
+        } else {
+            return @{ success = $false; message = "Config file not found" }
+        }
+    } catch {
+        return @{ success = $false; message = "Error reading config: $($_.Exception.Message)" }
+    }
+}
+
+# Function to handle HTTP requests
+function Handle-Request {
+    param($context)
+    
+    $request = $context.Request
+    $response = $context.Response
+    
+    # Set CORS headers
+    $response.Headers.Add("Access-Control-Allow-Origin", "*")
+    $response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    $response.Headers.Add("Access-Control-Allow-Headers", "Content-Type")
+    
+    $url = $request.Url.AbsolutePath
+    Write-Log "Request: $($request.HttpMethod) $url"
+    
+    try {
+        if ($request.HttpMethod -eq "OPTIONS") {
+            $response.StatusCode = 200
+            $response.Close()
+            return
+        }
+        
+        switch ($url) {
+            "/" {
+                $htmlContent = @"
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -190,12 +268,9 @@
     </div>
     
     <script>
-        // 获取当前脚本所在目录
-        const currentDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-        
         function showStatus(message, type = 'info') {
             const statusDiv = document.getElementById('status');
-            statusDiv.className = `status ${type}`;
+            statusDiv.className = `status `+type;
             statusDiv.textContent = message;
             statusDiv.style.display = 'block';
             
@@ -233,14 +308,14 @@
             .then(data => {
                 showLoading(false);
                 if (data.success) {
-                    showStatus(`${modeInfo.desc}已启动！进程ID: ${data.processId}`, 'success');
+                    showStatus(modeInfo.desc + '已启动！进程ID: ' + data.processId, 'success');
                 } else {
-                    showStatus(`启动失败: ${data.message}`, 'error');
+                    showStatus('启动失败: ' + data.message, 'error');
                 }
             })
             .catch(error => {
                 showLoading(false);
-                showStatus(`网络错误: ${error.message}`, 'error');
+                showStatus('网络错误: ' + error.message, 'error');
             });
         }
         
@@ -264,22 +339,20 @@
                         </head>
                         <body>
                             <h2>同步工具配置文件 (config.json)</h2>
-                            <pre>${data.content}</pre>
+                            <pre>' + data.content + '</pre>
                             <div class="note">注意：要修改配置，请直接编辑项目目录下的 config.json 文件</div>
                         </body>
                         </html>
                     `);
                     showStatus('配置文件已在新窗口中打开', 'success');
                 } else {
-                    showStatus(`无法读取配置文件: ${data.message}`, 'error');
+                    showStatus('无法读取配置文件: ' + data.message, 'error');
                 }
             })
             .catch(error => {
-                showStatus(`获取配置失败: ${error.message}`, 'error');
+                showStatus('获取配置失败: ' + error.message, 'error');
             });
         }
-        
-
         
         // 页面加载完成后的初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -288,3 +361,137 @@
     </script>
 </body>
 </html>
+"@
+                $buffer = [System.Text.Encoding]::UTF8.GetBytes($htmlContent)
+                $response.ContentType = "text/html; charset=utf-8"
+                $response.ContentLength64 = $buffer.Length
+                $response.OutputStream.Write($buffer, 0, $buffer.Length)
+            }
+            "/api/sync" {
+                if ($request.HttpMethod -eq "POST") {
+                    # 读取请求体中的JSON数据
+                    $requestBody = ""
+                    if ($request.HasEntityBody) {
+                        $reader = New-Object System.IO.StreamReader($request.InputStream)
+                        $requestBody = $reader.ReadToEnd()
+                        $reader.Close()
+                    }
+                    
+                    # 解析JSON并提取模式参数
+                    $mode = "once"  # 默认模式
+                    if ($requestBody) {
+                        try {
+                            $jsonData = $requestBody | ConvertFrom-Json
+                            if ($jsonData.mode) {
+                                $mode = $jsonData.mode
+                            }
+                        } catch {
+                            Write-Log "Error parsing JSON request body: $($_.Exception.Message)" "WARN"
+                        }
+                    }
+                    
+                    $result = Start-SyncProcess -Mode $mode
+                    $jsonResponse = $result | ConvertTo-Json
+                    $buffer = [System.Text.Encoding]::UTF8.GetBytes($jsonResponse)
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $response.ContentLength64 = $buffer.Length
+                    $response.OutputStream.Write($buffer, 0, $buffer.Length)
+                } else {
+                    $response.StatusCode = 405
+                }
+            }
+            
+            "/api/config" {
+                if ($request.HttpMethod -eq "GET") {
+                    $result = Get-ConfigContent
+                    $jsonResponse = $result | ConvertTo-Json
+                    $buffer = [System.Text.Encoding]::UTF8.GetBytes($jsonResponse)
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $response.ContentLength64 = $buffer.Length
+                    $response.OutputStream.Write($buffer, 0, $buffer.Length)
+                } else {
+                    $response.StatusCode = 405
+                }
+            }
+            
+            default {
+                $response.StatusCode = 404
+                $errorMsg = "Page not found"
+                $buffer = [System.Text.Encoding]::UTF8.GetBytes($errorMsg)
+                $response.ContentLength64 = $buffer.Length
+                $response.OutputStream.Write($buffer, 0, $buffer.Length)
+            }
+        }
+    } catch {
+        Write-Log "Error handling request: $($_.Exception.Message)" "ERROR"
+        try {
+            $response.StatusCode = 500
+            $errorMsg = "Internal server error"
+            $buffer = [System.Text.Encoding]::UTF8.GetBytes($errorMsg)
+            $response.ContentLength64 = $buffer.Length
+            $response.OutputStream.Write($buffer, 0, $buffer.Length)
+        } catch {
+            Write-Log "Error sending error response: $($_.Exception.Message)" "ERROR"
+        }
+    } finally {
+        try {
+            $response.Close()
+        } catch {
+            Write-Log "Error closing response: $($_.Exception.Message)" "ERROR"
+        }
+    }
+}
+
+# Main server loop
+try {
+    $listener = New-Object System.Net.HttpListener
+    $listener.Prefixes.Add("http://localhost:$Port/")
+    $listener.Start()
+    
+    Write-Log "HTTP server started on port: $Port"
+    Write-Log "Access URL: http://localhost:$Port"
+    Write-Log "Press Ctrl+C to stop server"
+    
+    # Handle Ctrl+C gracefully
+    $null = Register-ObjectEvent -InputObject ([System.Console]) -EventName CancelKeyPress -Action {
+        Write-Log "Received stop signal, shutting down server..."
+        $listener.Stop()
+        $listener.Close()
+        Write-Log "HTTP server stopped"
+        exit 0
+    }
+    
+    while ($listener.IsListening) {
+        try {
+            # Use async method with timeout to prevent blocking
+            $contextTask = $listener.GetContextAsync()
+            
+            # Wait for request with timeout
+            $timeout = 1000 # 1 second
+            if ($contextTask.Wait($timeout)) {
+                $context = $contextTask.Result
+                Handle-Request $context
+            }
+            
+            # Small delay to prevent high CPU usage
+            Start-Sleep -Milliseconds 10
+            
+        } catch [System.ObjectDisposedException] {
+            # Listener was disposed, exit gracefully
+            break
+        } catch {
+            Write-Log "Error in server loop: $($_.Exception.Message)" "ERROR"
+            Start-Sleep -Milliseconds 100
+        }
+    }
+    
+} catch {
+    Write-Log "Server startup error: $($_.Exception.Message)" "ERROR"
+    exit 1
+} finally {
+    if ($listener -and $listener.IsListening) {
+        $listener.Stop()
+        $listener.Close()
+        Write-Log "HTTP server stopped"
+    }
+}

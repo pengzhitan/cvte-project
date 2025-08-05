@@ -1,55 +1,58 @@
-# CVTE项目自动同步工具
+# 项目自动同步工具
 
-## 功能说明
+一个基于 PowerShell 的项目文件自动同步工具，支持实时监控文件变化并自动提交到 Git 仓库。
 
-这是一个用于CVTE项目的自动同步工具，能够监控项目文件变化并自动提交到Git仓库。
+## 功能特性
 
-## 文件说明
+- 🔄 **实时监控**: 监控指定目录的文件变化
+- ⚡ **自动同步**: 文件变化时自动执行 Git 提交和推送
+- 🎛️ **多种模式**: 支持持续监控、单次同步、交互模式
+- ⚙️ **灵活配置**: 通过 JSON 配置文件自定义监控规则
+- 📝 **详细日志**: 完整的操作日志记录
+- 🌐 **现代界面**: 提供美观的 HTML 操作界面
+- 🚀 **一键启动**: 点击即生效，无需额外操作
 
-- `启动同步工具.vbs`: 启动脚本，提供用户友好的菜单界面
-- `complete-sync.ps1`: 核心PowerShell脚本，实现自动同步功能
-- `sync-config.json`: 配置文件，可自定义同步参数
-- `README.md`: 本说明文档
+## 快速开始
 
-## 使用方法
+### 🎯 一键启动（推荐）
 
-### 🌟 推荐方式 - HTML界面
-双击运行 `启动工具.bat` 文件，会在浏览器中打开现代化的同步工具界面。
+**双击运行** `一键启动.bat` - 提供完整的菜单界面，选择对应数字即可立即执行：
 
-### 📋 功能说明
-- **持续监控模式**：实时监控文件变化并自动同步
-- **单次同步**：立即执行一次完整同步
-- **交互模式**：手动控制同步过程
-- **配置设置**：查看和修改同步配置
+- `[1]` 持续监控模式 - 实时监控文件变化并自动同步
+- `[2]` 单次同步 - 立即执行一次完整同步
+- `[3]` 交互模式 - 手动控制同步过程
+- `[4]` Web服务器模式 - 启动HTTP服务器，支持点击即运行（推荐）
+- `[5]` 打开HTML界面 - 在浏览器中操作（传统模式）
+- `[6]` 查看配置 - 编辑同步配置文件
 
-### 🔧 命令行方式
-如果需要直接使用命令行：
-```bash
+### 🌐 Web服务器模式（推荐）
+
+1. 选择选项4启动Web服务器
+2. 在浏览器中访问 `http://localhost:8080`
+3. 点击按钮即可直接运行，无需下载文件
+4. 按Ctrl+C停止服务器
+
+### 💻 命令行方式
+
+```powershell
+# 持续监控模式（推荐用于开发时）
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode continuous
+
 # 单次同步
 powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode once
-
-# 持续监控
-powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode continuous
 
 # 交互模式
 powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode interactive
 ```
 
-### 命令行方式
+## 文件说明
 
-```powershell
-# 单次同步
-powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -RunOnce
-
-# 持续监控（每30秒检查一次）
-powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -Monitor
-
-# 自定义监控间隔（每10秒检查一次）
-powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -Monitor -Interval 10
-
-# 交互模式
-powershell -ExecutionPolicy Bypass -File "complete-sync.ps1"
-```
+- `一键启动.bat` - 主启动器，提供完整菜单选择
+- `complete-sync.ps1` - 核心PowerShell同步脚本
+- `config.json` - 同步配置文件
+- `sync-launcher.html` - 网页操作界面
+- `sync-server.ps1` - HTTP服务器脚本，提供Web API支持点击即运行功能
+- `README.md` - 使用说明文档
 
 ## 前置要求
 
