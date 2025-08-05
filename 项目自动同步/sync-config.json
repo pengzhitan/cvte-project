@@ -1,0 +1,33 @@
+{
+  "projectPath": "D:\\my-project\\CVTE",
+  "remoteRepo": "https://github.com/pengzhitan/cvte-project.git",
+  "checkInterval": 180,
+  "gitConfig": {
+    "userName": "pengzhitan",
+    "userEmail": "pzt_china@163.com"
+  },
+  "excludePatterns": [
+    "*.tmp",
+    "*.log",
+    "node_modules/",
+    ".DS_Store",
+    "Thumbs.db",
+    "*.swp",
+    "*.swo"
+  ],
+  "autoCommitMessage": {
+    "prefix": "feat: 自动同步项目文件",
+    "includeTimestamp": true,
+    "includeFileCount": true
+  },
+  "notifications": {
+    "enabled": true,
+    "showSuccess": true,
+    "showErrors": true
+  },
+  "backup": {
+    "enabled": false,
+    "backupPath": "D:\\my-project\\CVTE\\backup",
+    "maxBackups": 5
+  }
+}
