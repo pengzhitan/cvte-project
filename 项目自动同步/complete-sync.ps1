@@ -2,6 +2,7 @@
 param(
     [switch]$RunOnce = $false,
     [switch]$Monitor = $false,
+    [string]$Mode = "",
     [int]$Interval = 30
 )
 
@@ -149,12 +150,24 @@ if ($RunOnce) {
     exit $(if ($result) { 0 } else { 1 })
 }
 
-if ($Monitor) {
+# Handle Mode parameter
+if ($Mode -eq "once" -or $RunOnce) {
+    Write-Log "Running single sync mode"
+    Invoke-GitSync
+    exit 0
+}
+
+if ($Mode -eq "continuous" -or $Monitor) {
     Start-MonitorMode
     exit 0
 }
 
-# Interactive mode
+if ($Mode -eq "interactive") {
+    Write-Log "Starting interactive mode"
+    # Continue to interactive mode below
+}
+
+# Interactive mode (default if no mode specified)
 while ($true) {
     $choice = Show-Menu
     
