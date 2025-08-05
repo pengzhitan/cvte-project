@@ -6,35 +6,35 @@
 
 ## 文件说明
 
-- `start-sync.bat`: 启动脚本，提供用户友好的菜单界面
+- `启动同步工具.vbs`: 启动脚本，提供用户友好的菜单界面
 - `complete-sync.ps1`: 核心PowerShell脚本，实现自动同步功能
 - `sync-config.json`: 配置文件，可自定义同步参数
 - `README.md`: 本说明文档
 
 ## 使用方法
 
-### 方法一：使用启动脚本（推荐）
+### 启动工具
 
-1. 双击运行 `start-sync.bat`
-2. 根据菜单提示选择运行模式：
-   - **持续监控模式**：每30秒检查一次文件变化，自动同步
-   - **单次同步模式**：立即执行一次同步操作
-   - **交互模式**：进入交互式菜单，可查看Git状态和日志
+**双击运行 `启动同步工具.vbs` 文件**，选择运行模式：
 
-### 方法二：直接运行PowerShell脚本
+1. **持续监控模式**：程序会持续监控项目文件变化，自动同步
+2. **单次同步**：执行一次同步操作后退出
+3. **交互模式**：提供完整的交互菜单
+
+### 命令行方式
 
 ```powershell
-# 持续监控模式
+# 单次同步
+powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -RunOnce
+
+# 持续监控（每30秒检查一次）
 powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -Monitor
 
-# 单次同步模式
-powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -RunOnce
+# 自定义监控间隔（每10秒检查一次）
+powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -Monitor -Interval 10
 
 # 交互模式
 powershell -ExecutionPolicy Bypass -File "complete-sync.ps1"
-
-# 自定义监控间隔（10秒）
-powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -Monitor -Interval 10
 ```
 
 ## 前置要求
@@ -56,11 +56,12 @@ powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -Monitor -Interval 
 ### 常见问题
 
 1. **PowerShell执行策略错误**
+
    ```powershell
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
    ```
-
 2. **Git推送失败**
+
    - 检查网络连接
    - 确认Git用户名和邮箱配置
    - 验证仓库推送权限
@@ -68,6 +69,7 @@ powershell -ExecutionPolicy Bypass -File "complete-sync.ps1" -Monitor -Interval 
 ### 日志查看
 
 脚本运行时会在控制台显示详细日志，包括：
+
 - 文件变化检测结果
 - Git操作执行状态
 - 错误信息和解决建议
