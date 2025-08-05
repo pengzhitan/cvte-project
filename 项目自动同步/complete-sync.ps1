@@ -6,7 +6,7 @@ param(
 )
 
 $ProjectPath = "D:\my-project\CVTE"
-$LogFile = "$ProjectPath\auto-sync\sync.log"
+$LogFile = "$PSScriptRoot\sync.log"
 
 function Write-Log {
     param([string]$Message, [string]$Level = "INFO")
