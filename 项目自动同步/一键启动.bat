@@ -1,95 +1,76 @@
 @echo off
 chcp 65001 >nul
-title Project Auto Sync Tool
+title CVTE项目自动同步工具
 color 0A
 cd /d "%~dp0"
 
 :start
 cls
-echo ========================================
-echo        Project Auto Sync Tool
-echo ========================================
+echo ╔══════════════════════════════════════╗
+echo ║        CVTE 项目自动同步工具         ║
+echo ╚══════════════════════════════════════╝
 echo.
-echo Please select running mode:
+echo 🚀 快速启动选项:
 echo.
-echo [1] Continuous Monitor - Real-time file monitoring and sync
-echo [2] Single Sync       - Execute one complete sync
-echo [3] Interactive Mode  - Manual sync control
-echo [4] Start Web Server  - Launch HTTP server for web UI
-echo [5] Open HTML UI      - Open local HTML file (legacy)
-echo [6] View Config       - Edit sync configuration
-echo [0] Exit
+echo [1] 🔄 持续监控模式 - 实时监控文件变化并自动同步
+echo [2] ⚡ 单次同步     - 立即执行一次完整同步
+echo [3] 🎛️ 交互模式     - 进入完整功能菜单
+echo [4] ⚙️ 编辑配置     - 修改同步配置文件
+echo [0] 🚪 退出
 echo.
-set /p choice=Please enter option (0-6): 
+set /p choice=请输入选项 (0-4): 
 
 if "%choice%"=="1" goto monitor
 if "%choice%"=="2" goto once
 if "%choice%"=="3" goto interactive
-if "%choice%"=="4" goto webserver
-if "%choice%"=="5" goto html
-if "%choice%"=="6" goto config
+if "%choice%"=="4" goto config
 if "%choice%"=="0" goto exit
-echo Invalid option, please try again
+echo 无效选项，请重新选择
 pause
 goto start
 
 :monitor
 echo.
-echo Starting continuous monitor mode...
+echo 🔄 启动持续监控模式...
+echo 💡 提示: 按 Ctrl+C 可停止监控
+echo.
 powershell.exe -ExecutionPolicy Bypass -File "%~dp0complete-sync.ps1" -Mode continuous
 goto end
 
 :once
 echo.
-echo Executing single sync...
+echo ⚡ 执行单次同步...
 powershell.exe -ExecutionPolicy Bypass -File "%~dp0complete-sync.ps1" -Mode once
 goto end
 
 :interactive
 echo.
-echo Starting interactive mode...
+echo 🎛️ 启动交互模式...
 powershell.exe -ExecutionPolicy Bypass -File "%~dp0complete-sync.ps1" -Mode interactive
-goto end
-
-:webserver
-echo.
-echo Starting HTTP server for web interface...
-echo Server will be available at: http://localhost:8080
-echo Press Ctrl+C to stop the server
-echo.
-powershell.exe -ExecutionPolicy Bypass -File "%~dp0sync-server.ps1"
-goto start
-
-:html
-echo.
-echo Opening HTML interface...
-start "" "%~dp0sync-launcher.html"
-echo HTML interface opened in browser
-pause
 goto start
 
 :config
 echo.
-echo Opening configuration file...
+echo ⚙️ 打开配置文件...
 if exist "%~dp0config.json" (
     start "" "%~dp0config.json"
-    echo Configuration file opened
+    echo 配置文件已打开，修改后请重启程序
 ) else (
-    echo Configuration file not found
+    echo 配置文件不存在
 )
 pause
 goto start
 
 :end
 echo.
-echo Operation completed!
-echo Press any key to return to main menu...
+echo ✅ 操作完成！
+echo 按任意键返回主菜单...
 pause >nul
 goto start
 
 :exit
 echo.
-echo Thank you for using Project Auto Sync Tool!
-echo Press any key to exit...
+echo 👋 感谢使用 CVTE 项目自动同步工具！
+echo 按任意键退出...
 pause >nul
 exit

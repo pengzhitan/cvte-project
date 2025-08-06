@@ -13,7 +13,10 @@
     ".DS_Store",
     "Thumbs.db",
     "*.swp",
-    "*.swo"
+    "*.swo",
+    "*.bak",
+    ".vscode/settings.json",
+    "sync.log"
   ],
   "autoCommitMessage": {
     "prefix": "feat: 自动同步项目文件",
@@ -29,5 +32,11 @@
     "enabled": false,
     "backupPath": "D:\\my-project\\CVTE\\backup",
     "maxBackups": 5
+  },
+  "advanced": {
+    "maxRetries": 3,
+    "retryDelay": 5,
+    "autoRebase": true,
+    "branchDetection": true
   }
 }
