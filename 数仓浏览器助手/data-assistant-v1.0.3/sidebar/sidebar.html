@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数仓开发提效工具</title>
+  <link rel="stylesheet" href="sidebar.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部区域 -->
+    <header class="header">
+      <h1>数仓开发提效工具</h1>
+      <p>高效、便捷的数据仓库开发助手</p>
+    </header>
+    
+    <!-- 选项卡导航 -->
+    <div class="tabs">
+      <div class="tab " data-tab="ai-qa">
+        <span class="tab-icon">🤖</span>
+        <span class="tab-text">知识问答</span>
+      </div>
+      <div class="tab active" data-tab="sql-conversion">
+        <span class="tab-icon">📝</span>
+        <span class="tab-text">SQL转换</span>
+      </div>
+      <div class="tab" data-tab="workflow">
+        <span class="tab-icon">⏱️</span>
+        <span class="tab-text">工作流补数</span>
+      </div>
+    </div>
+    
+    <!-- AI问答模块 -->
+<div id="ai-qa" class="content ">
+    <div class="qa-type-selector">
+      <label for="qa-type">问答类型：</label>
+      <select id="qa_type" class="form-control">
+        <option value="general">通用问答</option>
+        <option value="data-asset">数据资产问答</option>
+        <option value="task-search">任务搜索</option>
+        <option value="dev-guide">数仓开发指南</option>      
+        <option value="lineage-analysis">血缘影响分析</option>
+      </select>
+    </div>
+    
+    <div class="chat-container ">
+      <div class="chat-messages" id="chat-messages">
+        <div class="message ai-message">
+          您好，我是数仓开发助手，有什么可以帮您解答的问题吗？您也直接去问<a href="https://dify.cvte.com/explore/installed/9621a4ec-acb8-418c-a5cd-3a29771b9ff7" target="_blank">C厂秘书长</a>
+        <!--  <div class="message-time">刚刚</div>-->
+        </div>
+      </div>
+      <div class="chat-input">
+        <textarea placeholder="请输入您的问题..." id="question-input"></textarea>
+        <button class="btn" id="send-question-btn">
+          <span class="btn-icon"></span>发送
+        </button>
+      </div>
+    </div>
+  </div>
+    
+    <!-- SQL转换模块 -->
+    <div id="sql-conversion" class="content active">
+      <!-- 页面内容选择器 
+
+      <div class="page-selector-container">
+        <div class="page-selector-header">
+          <div class="page-selector-title">SQL来源：</div>
+          <button class="page-selector-toggle" id="page-selector-toggle">
+            <span class="btn-icon">🔍</span>从页面选择SQL
+          </button>
+        </div>
+        <div class="page-selector-preview" id="page-selector-preview"></div>
+        <div class="page-selector-actions" id="page-selector-actions">
+          <button class="btn-secondary" id="cancel-selection-btn">取消</button>
+          <button class="btn" id="confirm-selection-btn">使用选中内容</button>
+        </div>
+      </div>
+      -->
+      <div class="sql-conversion-header">
+        <select class="form-control sql-select" id="source-dialect">
+          <option value="Hive">Hive</option>
+          <option value="Impala">Impala</option>
+          <option value="Oracle">Oracle</option>
+          <option value="PostgreSQL">PostgreSQL</option>
+          <option value="MySQL">MySQL</option>
+          <option value="StarRocks">StarRocks</option>
+        </select>
+        <div class="sql-arrow"></div>
+        <select class="form-control sql-select" id="target-dialect">
+          <option value="StarRocks">StarRocks</option>
+          <option value="Hive">Hive</option>
+          <option value="Impala">Impala</option>
+          <option value="HiveDDL">HiveDDL</option>
+          <option value="starrocks_optimize">StarRocks SQL优化</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <textarea class="form-control" id="source-sql" placeholder="请输入源SQL语句或从页面选择SQL..."></textarea>
+      </div>
+      
+      <button class="btn" id="convert-btn">
+        <span class="btn-icon"></span>转换
+      </button>
+      
+      <div class="result-area" id="result-area">
+        <div class="result-header">
+          <div class="result-title">转换结果</div>
+          <button class="copy-btn" id="copy-result-btn">
+            <span class="btn-icon">📋</span>复制
+          </button>
+        </div>
+        <pre id="conversion-result">转换结果将显示在这里...</pre>
+      </div>
+    </div>
+    
+    <!-- 工作流补数模块 -->
+    <div id="workflow" class="content">
+      <div class="workflow-card">
+        <!--
+        <div class="workflow-card-title">
+          <span class="card-icon">📁</span>项目信息
+        </div>
+      -->
+        <div class="form-group">
+          <label for="project-name">项目名称</label>
+          <input type="text" class="form-control" id="project-name" placeholder="请输入项目名称">
+        </div>
+        
+        <div class="form-group">
+          <label for="workflow-name">工作流名称</label>
+          <input type="text" class="form-control" id="workflow-name" placeholder="请输入工作流名称">
+        </div>
+        <div class="form-group">
+          <label for="task_name">任务名称</label>
+          <input type="text" class="form-control" id="task-name" placeholder="请输入任务名称">
+        </div>
+        <div class="form-group">
+          <label style="color: red;">注意事项</label>
+          <ul style="font-size: 12px; color: #666; margin: 8px 0; padding-left: 20px;">
+            <li>输入任务名称，则补指定任务；不输入任务名称，则补整个工作流。</li>
+            <li>提交后请等待任务执行完成，不要重复提交，避免生成重复实例。</li>
+            <li>注意工作流下面是否有暂停、空跑的任务，补工作流时暂停及空跑任务会生成任务实例并跑任务，若不需要此任务，请先删除任务。</li>
+            <li>如遇问题请及时联系技术支持。</li>
+          </ul>       
+        </div>
+      </div>
+      
+      <div class="workflow-card">
+        <div class="workflow-card-title">
+          <span class="card-icon">📅</span>补数时间
+        </div>
+        
+        <div class="date-actions">
+          <div class="date-count">
+            已添加 <span id="date-count">1</span> 个时间参数
+          </div>
+          <div class="date-buttons">
+            <button class="btn-secondary" id="add-date-btn">
+              <span class="btn-icon">➕</span>添加
+            </button>
+            <button class="btn-secondary" id="remove-date-btn">
+              <span class="btn-icon">➖</span>删除
+            </button>
+          </div>
+        </div>
+        
+        <div class="date-inputs" id="date-inputs">
+          <div class="date-input">
+            <input type="date" class="form-control" name="workflow-date">
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top: 20px">
+        <button class="btn" id="submit-workflow-btn" style="width: 120px;">
+          提交补数
+        </button>
+      </div>
+ 
+  </div>
+  </div>
+  
+  <!-- 提示消息 -->
+  <div class="toast toast-success" id="toast-success">
+    <span class="toast-icon">✅</span>
+    <span id="toast-success-message"></span>
+  </div>
+  
+  <div class="toast toast-error" id="toast-error">
+    <span class="toast-icon">❌</span>
+    <span id="toast-error-message"></span>
+  </div>
+
+  <!-- JavaScript 文件引入 -->
+  <script src="../lib/utils.js"></script>
+  <script src="../lib/api.js"></script>
+  <script src="sidebar.js"></script>
+</body>
+</html>

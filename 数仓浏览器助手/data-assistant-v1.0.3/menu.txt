@@ -1,0 +1,26 @@
+/data-assistant-frontend/
+数仓开发提效工具/
+│
+├── manifest.json                 # 扩展清单文件
+│
+├── assets/                       # 资源文件夹
+│   └── icons/                    # 图标文件夹
+│       ├── icon16.png            # 16x16 图标
+│       ├── icon48.png            # 48x48 图标
+│       └── icon128.png           # 128x128 图标
+│
+├── background/                   # 后台脚本文件夹
+│   └── background.js             # 后台服务脚本
+│
+├── content/                      # 内容脚本文件夹
+│   ├── content.js                # 内容脚本
+│   └── content.css               # 内容样式
+│
+├── sidebar/                      # 侧边栏文件夹
+│   ├── sidebar.html              # 侧边栏HTML
+│   ├── sidebar.css               # 侧边栏样式
+│   └── sidebar.js                # 侧边栏脚本
+│
+└── lib/                          # 公共库文件夹
+    ├── api.js                    # API接口封装
+    └── utils.js                  # 工具函数库

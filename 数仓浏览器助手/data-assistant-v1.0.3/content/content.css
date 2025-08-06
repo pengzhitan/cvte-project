@@ -1,0 +1,41 @@
+/* 选择器激活时的样式 */
+body.sql-selector-active {
+    cursor: crosshair !important;
+    user-select: text !important;
+  }
+  
+  /* 选择提示样式 */
+  .sql-selector-tooltip {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1890ff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 10000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    text-align: center;
+    animation: fadeIn 0.3s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  
+  /* 高亮样式 */
+  .sql-selector-highlight {
+    background-color: rgba(24, 144, 255, 0.2);
+    border: 2px solid #1890ff;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .sql-selector-highlight:hover {
+    background-color: rgba(24, 144, 255, 0.3);
+  }

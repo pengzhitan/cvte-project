@@ -11,3 +11,17 @@
 [2025-08-06 22:24:28] [INFO] Changed to project directory: D:\my-project\CVTE
 [2025-08-06 22:24:28] [INFO] Detected 2 file changes
 [2025-08-06 22:24:28] [INFO] Adding files to staging area...
+[2025-08-06 22:24:28] [INFO] Committing changes: feat: 鑷姩鍚屾椤圭洰鏂囦欢 - 2025-08-06 22:24:28 (2 files)
+[2025-08-06 22:24:29] [INFO] Pushing to remote branch: master
+[2025-08-06 22:24:33] [SUCCESS] Sync completed successfully!
+[2025-08-06 22:28:55] [INFO] Starting interactive mode
+[2025-08-06 22:28:55] [ERROR] Config loading failed: 找不到与参数名称“AsHashtable”匹配的参数。
+[2025-08-06 22:29:13] [INFO] Starting interactive mode
+[2025-08-06 22:29:13] [INFO] Config loaded successfully
+[2025-08-06 22:29:30] [INFO] Starting interactive mode
+[2025-08-06 22:29:30] [INFO] Config loaded successfully
+[2025-08-06 22:29:51] [INFO] Starting single sync mode
+[2025-08-06 22:29:51] [INFO] Config loaded successfully
+[2025-08-06 22:29:52] [ERROR] Single sync failed
+[2025-08-06 22:30:19] [INFO] Starting single sync mode
+[2025-08-06 22:30:19] [INFO] Config loaded successfully
