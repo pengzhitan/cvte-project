@@ -41,3 +41,7 @@
 [2025-08-06 23:48:22] [INFO] Config loaded successfully
 [2025-08-06 23:52:02] [INFO] Starting interactive mode
 [2025-08-06 23:52:02] [INFO] Config loaded successfully
+[2025-08-06 23:55:01] [INFO] Starting interactive mode
+[2025-08-06 23:55:01] [INFO] Config loaded successfully
+[2025-08-06 23:55:10] [INFO] Starting monitor mode, check interval: 180 seconds
+[2025-08-06 23:55:10] [INFO] Press Ctrl+C to stop monitoring
