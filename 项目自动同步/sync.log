@@ -25,3 +25,7 @@
 [2025-08-06 22:29:52] [ERROR] Single sync failed
 [2025-08-06 22:30:19] [INFO] Starting single sync mode
 [2025-08-06 22:30:19] [INFO] Config loaded successfully
+[2025-08-06 22:30:33] [INFO] Starting monitor mode
+[2025-08-06 22:30:34] [INFO] Config loaded successfully
+[2025-08-06 22:30:34] [INFO] Starting monitor mode, check interval: 180 seconds
+[2025-08-06 22:30:34] [INFO] Press Ctrl+C to stop monitoring
