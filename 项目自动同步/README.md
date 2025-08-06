@@ -18,27 +18,28 @@
 
 ### 方式一：一键启动（推荐）
 
-**双击运行** `一键启动.bat` 文件，选择对应模式：
+**双击运行** `一键启动.bat` 文件，或直接运行PowerShell脚本进入交互模式：
 
-- `[1]` 🔄 **持续监控模式** - 后台实时监控，自动同步变化
-- `[2]` ⚡ **单次同步** - 立即执行一次完整同步
-- `[3]` 🎛️ **交互模式** - 进入完整功能菜单
-- `[4]` ⚙️ **编辑配置** - 修改同步参数
+- `[1]` ⚡ **执行单次同步** - 立即执行一次完整同步
+- `[2]` 🔄 **启动监控模式** - 后台实时监控，自动同步变化
+- `[3]` 📊 **查看Git状态** - 显示当前仓库状态和分支信息
+- `[4]` 📝 **查看同步日志** - 显示最近的同步操作记录
+- `[5]` 🚪 **退出程序** - 安全退出应用程序
 
 ### 方式二：命令行启动
 
 ```powershell
-# 持续监控模式（推荐用于开发时）
-powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode continuous
+# 交互模式（默认）
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1
 
 # 单次同步
-powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode once
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -RunOnce
 
-# 交互模式
-powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode interactive
+# 监控模式
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Monitor
 
 # 自定义检查间隔（秒）
-powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode continuous -Interval 60
+powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Monitor -Interval 60
 ```
 
 ## 📁 文件结构
@@ -46,11 +47,37 @@ powershell -ExecutionPolicy Bypass -File complete-sync.ps1 -Mode continuous -Int
 - `一键启动.bat` - 主启动器，提供完整菜单选择
 - `complete-sync.ps1` - 核心PowerShell同步脚本
 - `config.json` - 同步配置文件
-- `sync-launcher.html` - 网页操作界面
-- `sync-server.ps1` - HTTP服务器脚本，提供Web API支持点击即运行功能
+- `sync.log` - 同步操作日志文件
 - `README.md` - 使用说明文档
 
-## 前置要求
+## ⚙️ 配置说明
+
+### config.json 配置文件
+
+```json
+{
+  "projectPath": "D:\\my-project\\CVTE",
+  "remoteRepo": "https://github.com/username/repo.git",
+  "checkInterval": 180,
+  "excludePatterns": [
+    "*.tmp",
+    "*.log",
+    "node_modules/",
+    ".git/"
+  ],
+  "autoCommitMessage": "feat: 自动同步项目文件 - {timestamp} ({fileCount} files)"
+}
+```
+
+### 配置参数说明
+
+- **projectPath**: 要监控的项目根目录路径
+- **remoteRepo**: Git远程仓库地址
+- **checkInterval**: 监控模式下的检查间隔（秒）
+- **excludePatterns**: 排除的文件模式（支持通配符）
+- **autoCommitMessage**: 自动提交的消息模板
+
+## 📋 前置要求
 
 1. **Git环境**：确保系统已安装Git并配置好用户信息
 2. **PowerShell**：Windows 10/11自带，确保执行策略允许运行脚本
