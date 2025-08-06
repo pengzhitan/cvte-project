@@ -1,34 +1,13 @@
-# CVTE项目自动同步工具
+# CVTE Project Auto Sync Tool - Test Version
 param(
-    [switch]$RunOnce = $false,
-    [switch]$Monitor = $false,
-    [string]$Mode = "",
-    [int]$Interval = 0,
-    [string]$ConfigPath = "$PSScriptRoot\config.json"
+    [string]$Mode = "once"
 )
 
-# 全局变量
-$Config = $null
+# Configuration file path
+$ConfigPath = "$PSScriptRoot\config.json"
 $LogFile = "$PSScriptRoot\sync.log"
 
-# 加载配置文件
-function Load-Config {
-    try {
-        if (Test-Path $ConfigPath) {
-            $global:Config = Get-Content $ConfigPath -Raw | ConvertFrom-Json
-            Write-Host "[INFO] 配置文件加载成功" -ForegroundColor Green
-            return $true
-        } else {
-            Write-Host "[ERROR] 配置文件不存在: $ConfigPath" -ForegroundColor Red
-            return $false
-        }
-    } catch {
-        Write-Host "[ERROR] 配置文件解析失败: $($_.Exception.Message)" -ForegroundColor Red
-        return $false
-    }
-}
-
-# 日志函数
+# Log function
 function Write-Log {
     param(
         [string]$Message,
@@ -48,188 +27,131 @@ function Write-Log {
     try {
         Add-Content -Path $LogFile -Value $logEntry -Encoding UTF8
     } catch {
-        Write-Host "日志写入失败: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "Log write failed: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
 
-# 检测Git仓库
-function Test-GitRepository {
-    $projectPath = $Config.projectPath
-    
-    if (-not (Test-Path "$projectPath\.git")) {
-        Write-Log "Git仓库不存在: $projectPath" "ERROR"
-        return $false
-    }
-    
+# Load configuration
+function Load-Config {
     try {
-        Set-Location $projectPath
-        $currentUser = git config user.name
-        $currentEmail = git config user.email
-        
-        if (-not $currentUser -or -not $currentEmail) {
-            Write-Log "设置Git用户信息..." "INFO"
-            git config user.name $Config.gitConfig.userName
-            git config user.email $Config.gitConfig.userEmail
+        if (Test-Path $ConfigPath) {
+            $config = Get-Content $ConfigPath -Raw | ConvertFrom-Json
+            Write-Log "Config loaded successfully" "SUCCESS"
+            return $config
+        } else {
+            Write-Log "Config file not found: $ConfigPath" "ERROR"
+            return $null
         }
-        
-        Write-Log "Git仓库检查通过" "SUCCESS"
-        return $true
     } catch {
-        Write-Log "Git配置检查失败: $($_.Exception.Message)" "ERROR"
-        return $false
+        Write-Log "Config parse failed: $($_.Exception.Message)" "ERROR"
+        return $null
     }
 }
 
-# 获取当前分支
-function Get-CurrentBranch {
-    try {
-        $branch = git rev-parse --abbrev-ref HEAD
-        return $branch.Trim()
-    } catch {
-        Write-Log "获取当前分支失败，使用默认分支main" "WARN"
-        return "main"
-    }
-}
-
-# Git同步函数
+# Git sync function
 function Invoke-GitSync {
+    param($Config)
+    
     try {
         Set-Location $Config.projectPath
+        Write-Log "Changed to project directory: $($Config.projectPath)" "INFO"
         
-        # 检查是否有变化
+        # Check Git status
         $status = git status --porcelain
         if (-not $status) {
-            Write-Log "没有检测到文件变化" "INFO"
+            Write-Log "No file changes detected" "INFO"
             return $true
         }
         
         $changedFiles = ($status | Measure-Object).Count
-        Write-Log "检测到 $changedFiles 个文件变化，开始同步..." "INFO"
+        Write-Log "Detected $changedFiles file changes" "INFO"
         
-        # 添加所有变化
-        Write-Log "添加文件到暂存区..." "INFO"
+        # Add files
+        Write-Log "Adding files to staging area..." "INFO"
         git add .
         
         if ($LASTEXITCODE -ne 0) {
-            Write-Log "文件添加失败" "ERROR"
+            Write-Log "File add failed" "ERROR"
             return $false
         }
         
-        # 生成提交信息
+        # Commit
         $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        $commitMessage = $Config.autoCommitMessage.prefix
+        $commitMessage = "$($Config.autoCommitMessage.prefix) - $timestamp ($changedFiles files)"
         
-        if ($Config.autoCommitMessage.includeTimestamp) {
-            $commitMessage += " - $timestamp"
-        }
-        
-        if ($Config.autoCommitMessage.includeFileCount) {
-            $commitMessage += " ($changedFiles 个文件)"
-        }
-        
-        # 提交变化
-        Write-Log "提交变化: $commitMessage" "INFO"
+        Write-Log "Committing changes: $commitMessage" "INFO"
         git commit -m $commitMessage
         
         if ($LASTEXITCODE -ne 0) {
-            Write-Log "提交失败" "ERROR"
+            Write-Log "Commit failed" "ERROR"
             return $false
         }
         
-        # 获取当前分支
-        $currentBranch = Get-CurrentBranch
-        Write-Log "当前分支: $currentBranch" "INFO"
-        
-        # 推送到远程
-        Write-Log "推送到远程仓库..." "INFO"
+        # Push
+        $currentBranch = git rev-parse --abbrev-ref HEAD
+        Write-Log "Pushing to remote branch: $currentBranch" "INFO"
         git push origin $currentBranch
         
         if ($LASTEXITCODE -eq 0) {
-            Write-Log "同步完成！" "SUCCESS"
+            Write-Log "Sync completed successfully!" "SUCCESS"
             return $true
         } else {
-            Write-Log "推送失败，尝试先拉取..." "WARN"
-            
-            # 先拉取再推送
+            Write-Log "Push failed, trying to pull first..." "WARN"
             git pull origin $currentBranch --rebase
             
             if ($LASTEXITCODE -eq 0) {
                 git push origin $currentBranch
-                
                 if ($LASTEXITCODE -eq 0) {
-                    Write-Log "同步完成（经过rebase）" "SUCCESS"
+                    Write-Log "Sync completed after rebase" "SUCCESS"
                     return $true
                 }
             }
             
-            Write-Log "同步失败，请手动解决冲突" "ERROR"
+            Write-Log "Sync failed, please resolve conflicts manually" "ERROR"
             return $false
         }
     } catch {
-        Write-Log "同步过程中发生错误: $($_.Exception.Message)" "ERROR"
+        Write-Log "Error during sync: $($_.Exception.Message)" "ERROR"
         return $false
     }
 }
-}
 
-# 主执行逻辑
-try {
-    Write-Host "\n=== CVTE 项目自动同步工具 ===" -ForegroundColor Cyan
-    
-    # 加载配置
-    if (-not (Load-Config)) {
-        Write-Host "配置加载失败，程序退出" -ForegroundColor Red
-        exit 1
-    }
-    
-    # 检查Git仓库
-    if (-not (Test-GitRepository)) {
-        Write-Host "Git仓库检查失败，程序退出" -ForegroundColor Red
-        exit 1
-    }
-    
-    # 根据参数执行不同模式
-    if ($RunOnce -or $Mode -eq "once") {
-        Write-Log "执行单次同步模式" "INFO"
-        $result = Invoke-GitSync
-        if ($result) {
-            Write-Log "单次同步完成" "SUCCESS"
-            Write-Host "\n✅ 同步成功完成！" -ForegroundColor Green
-        } else {
-            Write-Log "单次同步失败" "ERROR"
-            Write-Host "\n❌ 同步失败，请查看日志" -ForegroundColor Red
-            exit 1
-        }
-    } elseif ($Monitor -or $Mode -eq "continuous") {
-        Write-Log "启动持续监控模式" "INFO"
-        Write-Host "\n🔄 启动持续监控模式..." -ForegroundColor Yellow
-        Write-Host "按 Ctrl+C 停止监控" -ForegroundColor Gray
-        
-        $interval = if ($Interval -gt 0) { $Interval } else { $Config.checkInterval }
-        
-        while ($true) {
-            try {
-                $syncResult = Invoke-GitSync
-                Start-Sleep -Seconds $interval
-            } catch {
-                Write-Log "监控过程中发生错误: $($_.Exception.Message)" "ERROR"
-                Start-Sleep -Seconds $interval
-            }
-        }
-    } elseif ($Mode -eq "interactive") {
-        Write-Log "启动交互模式" "INFO"
-        Write-Host "\n🎯 交互模式暂未实现，请使用其他模式" -ForegroundColor Yellow
-    } else {
-        # 默认显示帮助信息
-        Write-Host "\n📖 使用方法:" -ForegroundColor White
-        Write-Host "  .\complete-sync.ps1 -Mode once        # 单次同步" -ForegroundColor Gray
-        Write-Host "  .\complete-sync.ps1 -Mode continuous  # 持续监控" -ForegroundColor Gray
-        Write-Host "  .\complete-sync.ps1 -Mode interactive # 交互模式" -ForegroundColor Gray
-        Write-Host "\n或直接运行 一键启动.bat 文件" -ForegroundColor Yellow
-    }
-    
-} catch {
-    Write-Log "程序执行过程中发生错误: $($_.Exception.Message)" "ERROR"
-    Write-Host "\n❌ 程序执行失败: $($_.Exception.Message)" -ForegroundColor Red
+# Main program
+Write-Host "`n=== CVTE Project Auto Sync Tool ===" -ForegroundColor Cyan
+
+# Load configuration
+$Config = Load-Config
+if (-not $Config) {
+    Write-Host "Config loading failed, exiting" -ForegroundColor Red
     exit 1
 }
+
+# Check project path
+if (-not (Test-Path $Config.projectPath)) {
+    Write-Log "Project path does not exist: $($Config.projectPath)" "ERROR"
+    exit 1
+}
+
+# Check Git repository
+if (-not (Test-Path "$($Config.projectPath)\.git")) {
+    Write-Log "Git repository does not exist: $($Config.projectPath)" "ERROR"
+    exit 1
+}
+
+# Execute sync
+if ($Mode -eq "once") {
+    Write-Log "Executing single sync" "INFO"
+    $result = Invoke-GitSync -Config $Config
+    
+    if ($result) {
+        Write-Host "`n✅ Sync completed successfully!" -ForegroundColor Green
+    } else {
+        Write-Host "`n❌ Sync failed, please check logs" -ForegroundColor Red
+        exit 1
+    }
+} else {
+    Write-Host "`n📖 Usage:" -ForegroundColor White
+    Write-Host "  .\test-sync.ps1 -Mode once  # Single sync" -ForegroundColor Gray
+}
+
+Write-Host "`nProgram execution completed" -ForegroundColor Green
