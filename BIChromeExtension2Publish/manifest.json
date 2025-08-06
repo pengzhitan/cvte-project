@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "author": "xinyan(辛岩)",
+    "name": "BI报表助手",
+    "version": "1.0.0",
+    "description": "自动化BI系统重复操作的Chrome插件",
+    "permissions": [
+        "activeTab",
+        "storage",
+        "sidePanel",
+        "cookies",
+        "scripting",
+        "tabs"
+    ],
+    "host_permissions": [
+        "https://bi.cvte.com/*",
+        "http://bi.cvte.com/*"
+    ],
+    "action": {
+        "default_title": "BI报表助手"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "side_panel": {
+        "default_path": "template/sidepanel.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://bi.cvte.com/*"],
+            "js": ["script/content.js"],
+            "css": ["style/content.css"]
+        }
+    ],
+    "icons": {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "64": "icons/icon64.png",
+        "128": "icons/icon128.png"
+    }
+}

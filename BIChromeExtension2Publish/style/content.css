@@ -1,0 +1,31 @@
+.widget-data-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #007bff;
+    /* 蓝色背景 */
+    color: white;
+    /* 白色文本 */
+    padding: 5px;
+    /* 文本框内边距 */
+    margin: 5px;
+    /* 与容器边缘的距离 */
+    font-size: 12px;
+    /* 字体大小 */
+    white-space: nowrap;
+    /* 防止文本换行 */
+    /* 以下样式将确保文本框的高度仅包含一行文本 */
+    line-height: 1.5;
+}
+
+.widget-measure-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}

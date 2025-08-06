@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>侧边栏扩展</title>
+    <link rel="stylesheet" href="../style/sidepanel.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="sidepanel">
+        <!-- 顶部标签页 -->
+        <div class="tab-container">
+            <div class="tab active" data-tab="menu-operations">
+                <i class="fas fa-th-list"></i> 菜单操作
+            </div>
+            <div class="tab" data-tab="chat-assistant">
+                <i class="fas fa-comments"></i> 聊天助手
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content-container">
+            <!-- 菜单操作页面 -->
+            <div class="tab-content active" id="menu-operations">
+                <!-- 功能操作区 -->
+                <div class="function-area expanded">
+                    <div class="function-header">
+                        <h2>功能区</h2>
+                        <label class="debug-switch-label" style="display:none;" title="开启Debug模式">
+                        <!-- <label class="debug-switch-label" title="开启Debug模式"> -->
+                            <input type="checkbox" id="debug-switch"/> Debug模式
+                        </label>
+                        <button id="toggle-function-area" class="toggle-btn" title="折叠/展开功能区">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                    </div>
+                    <div id="function-groups">
+                        <!-- 功能组将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 结果显示区 -->
+                <div class="result-area">
+                    <div class="result-header">
+                        <h2>结果区</h2>
+                        <button id="clear-results" class="clear-btn">
+                            <i class="fas fa-trash"></i> 清除
+                        </button>
+                    </div>
+                    <div id="result-cards">
+                        <!-- 结果卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天助手页面 -->
+            <div class="tab-content" id="chat-assistant">
+                <div class="chat-placeholder">
+                    <div class="placeholder-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>聊天助手功能</h3>
+                    <p>此功能正在开发中，敬请期待...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部状态栏 -->
+        <div class="status-bar">
+            <div id="status-version" class="version-info">
+                <i class="fas fa-info-circle"></i> 版本: v1.0.0
+            </div>
+            <div class="status-info">
+                <span id="status-message">就绪</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩层 -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loading-text">正在处理，请稍候...</div>
+        </div>
+    </div>
+
+    <script src="../script/sidepanel.js"></script>
+</body>
+
+</html>
